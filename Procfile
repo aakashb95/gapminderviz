@@ -1,1 +1,1 @@
-web: sh setup.sh && streamlit run sketch.py
+web: sh setup.sh && streamlit run st_gapminder.py
