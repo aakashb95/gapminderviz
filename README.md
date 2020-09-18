@@ -1,5 +1,5 @@
 # Gapminderviz
-Visualizing gapminder data with streamlit.
+Visualizing gapminder data with plotly using streamlit.
 
 Dataset: https://www.kaggle.com/aman1py/gapminder
 
