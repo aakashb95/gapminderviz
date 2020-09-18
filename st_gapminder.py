@@ -3,25 +3,7 @@ import streamlit as st
 import plotly.express as px
 import seaborn as sns
 import matplotlib.pyplot as plt
-
-
-def choice_wise(df, choice):
-    # st.sidebar.title(f"{choice} wise yearly trend of feature")
-
-    cr = st.sidebar.selectbox(f"Select {choice}", ['All',*df[choice].unique()])
-    col_list =  ['population','fertility', 'life', 'child_mortality',
-        'gdp']
-    column = st.sidebar.selectbox("Select Features",col_list)
-
-    if cr!='All':
-        fig = px.line(df[df[choice]==cr], x = 'Year', y = column, color = 'Country')
-    else :
-        fig = px.line(df, x = 'Year', y = column, color = choice)
-
-
-    st.title(f'{choice.capitalize()} - {column.capitalize()} vs Year')
-    st.plotly_chart(fig)
-
+from plotly.subplots import make_subplots
 
 def population_pie(df):
     #PIE
@@ -58,6 +40,44 @@ def gdp_life(df):
 
     st.title(f'GDP per capita and Life Expectancy in {gdp_region} in {gdp_year}')
     st.plotly_chart(gdp_le)
+    
+def study_country(country):    
+    global df
+    cdf = df[df['Country']==country]
+
+    fig = make_subplots(rows=3, cols=2)
+
+    le = px.line(cdf, x = 'Year', y = 'life')
+
+    gdp = px.line(cdf, x = 'Year', y = 'gdp')
+
+    pop = px.line(cdf, x = 'Year', y = 'population')
+
+    cm = px.line(cdf, x = 'Year', y = 'child_mortality')
+
+    fertility = px.line(cdf, x = 'Year', y = 'fertility')
+
+    fig.add_trace(le.data[0], row = 1, col = 1)
+    fig.add_trace(gdp.data[0], row = 1, col = 2)
+    fig.add_trace(pop.data[0], row = 2, col = 1)
+    fig.add_trace(cm.data[0], row = 2, col = 2)
+    fig.add_trace(fertility.data[0], row = 3, col = 1)
+
+    fig.update_xaxes(title_text="Year", row=1, col=1)
+    fig.update_xaxes(title_text="Year",  row=1, col=2)
+    fig.update_xaxes(title_text="Year", row=2, col=1)
+    fig.update_xaxes(title_text="Year",  row=2, col=2)
+    fig.update_xaxes(title_text="Year",  row=3, col=1)
+
+    # Update yaxis properties
+    fig.update_yaxes(title_text="Life Expectancy", row=1, col=1)
+    fig.update_yaxes(title_text="GDP Per Capita",  row=1, col=2)
+    fig.update_yaxes(title_text="Population",  row=2, col=1)
+    fig.update_yaxes(title_text="Child Mortality", row=2, col=2)
+    fig.update_yaxes(title_text="Fertility", row=3, col=1)
+
+    fig.update_layout(title_text=f"Studying {country}", height=700, width = 850)
+    st.plotly_chart(fig)
 
 if __name__ == "__main__":
     
@@ -67,10 +87,11 @@ if __name__ == "__main__":
         return df
 
     df = load_data()
-    st.sidebar.title('Select Country/Region')
-    choice = st.sidebar.selectbox('',['Country','region'])
-    st.sidebar.title(f"{choice.capitalize()} wise yearly trend of feature")
-    choice_wise(df, choice)
+    
+    st.sidebar.title(f"Trends of all features for Country of your choice")
+    country_choice = st.sidebar.selectbox('Select Country',df.Country.unique())
+    
+    study_country(country_choice)
         
     population_pie(df)
     gdp_life(df)
